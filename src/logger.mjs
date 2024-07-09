@@ -1,19 +1,16 @@
-const RED = "\x1b[31m";
-const GREEN = "\x1b[32m";
-const YELLOW = "\x1b[33m";
-const END = "\x1b[0m";
+import * as utils from "./util.mjs";
 
 const PREFIX = "[repox]";
 
 export const logger = {
   info: (...args) => console.log(PREFIX, ...args),
   error: (...args) => {
-    console.error(`${RED}${PREFIX}`, ...args, END);
+    console.error(`${utils.RED}${PREFIX}`, ...args, utils.END);
   },
   success: (...args) => {
-    console.log(`${GREEN}${PREFIX}`, ...args, END);
+    console.log(`${utils.GREEN}${PREFIX}`, ...args, utils.END);
   },
   warn: (...args) => {
-    console.warn(`${YELLOW}${PREFIX}`, ...args, END);
+    console.warn(`${utils.YELLOW}${PREFIX}`, ...args, utils.END);
   },
 };
