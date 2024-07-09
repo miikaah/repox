@@ -23,6 +23,7 @@ if (!cmd || cmd === "-h" || cmd === "--help" || cmd === "help") {
   console.log("pull \t\t\t Run git pull --rebase in all repos");
   console.log("pulli \t\t\t Run git pull --rebase && npm i in all repos");
   console.log();
+  process.exit(0);
 }
 
 if (cmd === "dir") {
