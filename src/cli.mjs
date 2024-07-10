@@ -21,7 +21,7 @@ export const cli = async (cmd, arg1, ...restargs) => {
     console.log("clean \t\t\t Remove node_modules directory in all repos");
     console.log("install  i \t\t Run npm i in all repos");
     console.log("pull \t\t\t Run git pull --rebase in all repos");
-    console.log("pulli \t\t\t Run git pull --rebase && npm i in all repos");
+    console.log("pi \t\t\t Run git pull --rebase && npm i in all repos");
     console.log();
     return;
   }
@@ -209,7 +209,7 @@ export const cli = async (cmd, arg1, ...restargs) => {
     }
   }
 
-  if (cmd === "pulli") {
+  if (cmd === "pi") {
     try {
       const { repodir, repolist } = await readConfig();
 
