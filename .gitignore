@@ -50,3 +50,7 @@ data.txt
 
 # Test stuff
 tmp
+
+# Zig
+.zig-*
+zig-*
