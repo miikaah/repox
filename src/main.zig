@@ -4,6 +4,7 @@ const io = std.io;
 const mem = std.mem;
 const heap = std.heap;
 const process = std.process;
+const eql = mem.eql;
 // const c = @cImport({
 //     @cInclude("stdlib.h");
 // });
@@ -26,12 +27,12 @@ fn printHelp(stdout: fs.File.Writer) !void {
     try stdout.print("pull \t\t\t Run git pull --rebase in all repos\n", .{});
     try stdout.print("pi \t\t\t Run git pull --rebase && npm i in all repos\n", .{});
     try stdout.print("\n", .{});
-    return;
 }
 
 pub fn main() !void {
     // _ = c.system("git status");
     const stdout = io.getStdOut().writer();
+    const stderr = io.getStdErr().writer();
     var arena = heap.ArenaAllocator.init(heap.page_allocator);
     defer arena.deinit();
 
@@ -41,15 +42,25 @@ pub fn main() !void {
     const args = argv[1..];
     if (args.len < 1) {
         try printHelp(stdout);
+        return;
     }
 
     const cmd = args[0];
 
-    if (mem.eql(u8, cmd, "-h") or mem.eql(u8, cmd, "--help") or mem.eql(u8, cmd, "help")) {
+    if (eql(u8, cmd, "-h") or eql(u8, cmd, "--help") or eql(u8, cmd, "help")) {
         try printHelp(stdout);
+        return;
     }
 
-    if (mem.eql(u8, cmd, "dir")) {
-        _ = ConfigFile.init(stdout, arena.allocator());
+    const settings = ConfigFile.init(arena.allocator());
+
+    if (eql(u8, cmd, "show")) {
+        try stdout.print("{s}\n", .{settings.buffer});
+        return;
+    }
+
+    if (cmd.len > 0) {
+        try stderr.print("Command {s} not found\n", .{cmd});
+        return;
     }
 }
