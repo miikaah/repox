@@ -12,12 +12,12 @@ pub const ConfigFile = struct {
     default_config_dir: []const u8,
     default_config_file: []const u8,
 
-    pub const Settings = struct {
+    pub const ApiSettings = struct {
         repodir: []u8,
         repolist: [][]u8,
     };
 
-    pub const InnerSettings = struct {
+    pub const Settings = struct {
         repodir: []u8,
         repolist: [][]u8,
         buffer: []u8,
@@ -39,38 +39,38 @@ pub const ConfigFile = struct {
         };
     }
 
-    pub fn init(allocator: Allocator) InnerSettings {
+    pub fn init(allocator: Allocator) Settings {
         const config_file = @This().construct(allocator) catch |err| {
-            std.debug.print("Failed to contruct ConfigFile: {}\n", .{err});
+            std.log.err("Failed to contruct ConfigFile: {}", .{err});
             process.exit(1);
         };
 
         return config_file.read();
     }
 
-    pub fn read(self: ConfigFile) InnerSettings {
+    pub fn read(self: ConfigFile) Settings {
         const error_code = 2;
         const file = fs.openFileAbsolute(self.default_config_file, .{}) catch |err| {
             // TODO: Create a new config dir if not exists etc init
-            std.debug.print("Failed to open config file: {}\n", .{err});
+            std.log.err("Failed to open config file for read: {}", .{err});
             process.exit(error_code);
         };
         defer file.close();
 
         const file_size = file.getEndPos() catch |err| {
-            std.debug.print("Failed to get file end position: {}\n", .{err});
+            std.log.err("Failed to get file end position: {}", .{err});
             process.exit(error_code);
         };
         const buffer = self.allocator.alloc(u8, file_size) catch |err| {
-            std.debug.print("Failed to allocate memory for file buffer: {}\n", .{err});
+            std.log.err("Failed to allocate memory for file buffer: {}", .{err});
             process.exit(error_code);
         };
-        const buffer_size = file.read(buffer) catch |err| {
-            std.debug.print("Failed to read file to buffer: {}\n", .{err});
+        const buffer_size = file.readAll(buffer) catch |err| {
+            std.log.err("Failed to read file to buffer: {}", .{err});
             process.exit(error_code);
         };
-        const parsed = std.json.parseFromSliceLeaky(Settings, self.allocator, buffer, .{}) catch |err| {
-            std.debug.print("Failed to parse buffer to JSON: {}\n", .{err});
+        const parsed = std.json.parseFromSliceLeaky(ApiSettings, self.allocator, buffer, .{}) catch |err| {
+            std.log.err("Failed to parse buffer to JSON: {}", .{err});
             process.exit(error_code);
         };
 
@@ -80,5 +80,14 @@ pub const ConfigFile = struct {
             .buffer = buffer,
             .buffer_size = buffer_size,
         };
+    }
+
+    pub fn write(self: ConfigFile) void {
+        const error_code = 3;
+        const file = fs.openFileAbsolute(self.default_config_file, .{}) catch |err| {
+            std.log.err("Failed to open config file for write: {}\n", .{err});
+            process.exit(error_code);
+        };
+        defer file.close();
     }
 };

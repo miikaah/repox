@@ -1,0 +1,45 @@
+const std = @import("std");
+const ConfigFile = @import("config_file.zig").ConfigFile;
+const Settings = ConfigFile.Settings;
+
+const stdout = std.io.getStdOut().writer();
+
+const help_text =
+    \\Repox commands:
+    \\help  -h, --help      Print this help
+    \\dir                   Set repository directory
+    \\show                  Print current config
+    \\add                   Add repositories
+    \\remove                Remove repositories
+    \\empty                 Remove all repositories
+    \\
+    \\fetch                 Run git fetch in all repositories
+    \\fs                    Run git fetch && git status in all repositories
+    \\status                Run git status in all repositories
+    \\clean                 Remove node_modules directory in all repos
+    \\install               Run npm i in all repos
+    \\pull                  Run git pull --rebase in all repos
+    \\pi                    Run git pull --rebase && npm i in all repos
+    \\
+;
+
+pub fn help() void {
+    stdout.print("\n{s}\n", .{help_text}) catch |err| {
+        std.log.err("Failed to print help: {}", .{err});
+        std.process.exit(1);
+    };
+}
+
+pub fn show(settings: Settings) void {
+    stdout.print("{s}\n", .{settings.buffer}) catch |err| {
+        std.log.err("Failed to print show: {}", .{err});
+        std.process.exit(1);
+    };
+}
+
+pub fn commandNotFound() void {
+    stdout.print("Command not found\n", .{}) catch |err| {
+        std.log.err("Failed to print command not found: {}", .{err});
+        std.process.exit(1);
+    };
+}
