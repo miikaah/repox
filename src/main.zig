@@ -67,6 +67,25 @@ pub fn main() !void {
         return;
     }
 
+    if (isEqual(cmd, "remove")) {
+        const remove_args = args[1..];
+        if (remove_args.len < 1) {
+            std.log.err("Missing argument for removing a directory", .{});
+            return;
+        }
+
+        // TODO: remove multiple
+
+        const dir_to_remove = remove_args[0];
+        array.removeByValue(&config.repolist, dir_to_remove);
+
+        config_file.write(.{
+            .repodir = config.repodir,
+            .repolist = config.repolist,
+        });
+        return;
+    }
+
     if (cmd.len > 0) {
         print.commandNotFound();
         return;

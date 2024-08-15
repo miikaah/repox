@@ -1,5 +1,7 @@
 const std = @import("std");
+const isEqual = @import("is_equal.zig").isEqual;
 
+/// Caller is responsible for freeing the result array
 pub fn copyStringArrayListItemsToOwnedSlice(
     allocator: std.mem.Allocator,
     array_list: std.ArrayList([]u8),
@@ -14,4 +16,16 @@ pub fn copyStringArrayListItemsToOwnedSlice(
     }
 
     return new_array;
+}
+
+/// Removes the item in the array list in place
+pub fn removeByValue(
+    array_list: *std.ArrayList([]u8),
+    value: []u8,
+) void {
+    for (array_list.items, 0..) |item, index| {
+        if (isEqual(item, value)) {
+            _ = array_list.orderedRemove(index);
+        }
+    }
 }

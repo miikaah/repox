@@ -142,12 +142,17 @@ pub const ConfigFile = struct {
             payload,
             .{ .whitespace = .indent_2 },
         ) catch |err| {
-            log.err("Failed to stringify settings: {}", .{err});
+            log.err("Failed to stringify config: {}", .{err});
             process.exit(error_code);
         };
 
+        // TODO: validate that JSON file write succeeded
         file.writeAll(json_slice) catch |err| {
             log.err("Failed to write file: {}", .{err});
+            process.exit(error_code);
+        };
+        file.setEndPos(json_slice.len) catch |err| {
+            log.err("Failed to truncate file: {}", .{err});
             process.exit(error_code);
         };
     }
