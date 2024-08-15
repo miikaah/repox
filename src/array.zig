@@ -18,14 +18,28 @@ pub fn copyStringArrayListItemsToOwnedSlice(
     return new_array;
 }
 
+pub fn stringArrayListContains(
+    array_list: *std.ArrayList([]u8),
+    value: []u8,
+) bool {
+    for (array_list.items) |item| {
+        if (isEqual(item, value)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /// Removes the item in the array list in place
-pub fn removeByValue(
+pub fn removeOneByValue(
     array_list: *std.ArrayList([]u8),
     value: []u8,
 ) void {
     for (array_list.items, 0..) |item, index| {
         if (isEqual(item, value)) {
             _ = array_list.orderedRemove(index);
+            break;
         }
     }
 }

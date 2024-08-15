@@ -1,25 +1,20 @@
 const std = @import("std");
-const fs = std.fs;
-const heap = std.heap;
-const io = std.io;
-const mem = std.mem;
-const process = std.process;
 // const c = @cImport({
 //     @cInclude("stdlib.h");
 // });
 const array = @import("array.zig");
 const ConfigFile = @import("config_file.zig").ConfigFile;
-const dirExists = @import("fs.zig").dirExists;
+const fs = @import("fs.zig");
 const isEqual = @import("is_equal.zig").isEqual;
 const joinPath = @import("path.zig").joinPath;
 const print = @import("print.zig");
 
 pub fn main() !void {
     // _ = c.system("git status");
-    var arena = heap.ArenaAllocator.init(heap.page_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
-    const argv = try process.argsAlloc(arena.allocator());
+    const argv = try std.process.argsAlloc(arena.allocator());
     // defer process.argsFree(arena.allocator(), argv); // No need to call argsFree because using arena allocator
 
     const args = argv[1..];
@@ -50,15 +45,16 @@ pub fn main() !void {
             return;
         }
 
-        const new_dir = add_args[0];
-        dirExists(config.repodir);
+        fs.assertDirExists(config.repodir);
 
-        const new_dirpath = joinPath(arena.allocator(), config.repodir, new_dir);
-        dirExists(new_dirpath);
+        for (add_args) |new_dir| {
+            const new_dirpath = joinPath(arena.allocator(), config.repodir, new_dir);
+            fs.assertDirExists(new_dirpath);
 
-        // TODO: append multiple
-
-        try config.repolist.append(new_dir);
+            if (!array.stringArrayListContains(&config.repolist, new_dir)) {
+                try config.repolist.append(new_dir);
+            }
+        }
 
         config_file.write(.{
             .repodir = config.repodir,
@@ -74,10 +70,11 @@ pub fn main() !void {
             return;
         }
 
-        // TODO: remove multiple
-
-        const dir_to_remove = remove_args[0];
-        array.removeByValue(&config.repolist, dir_to_remove);
+        for (remove_args) |dir_to_remove| {
+            if (array.stringArrayListContains(&config.repolist, dir_to_remove)) {
+                array.removeOneByValue(&config.repolist, dir_to_remove);
+            }
+        }
 
         config_file.write(.{
             .repodir = config.repodir,
