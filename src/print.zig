@@ -1,6 +1,6 @@
 const std = @import("std");
 const ConfigFile = @import("config_file.zig").ConfigFile;
-const Settings = ConfigFile.Config;
+const Config = ConfigFile.Config;
 
 const stdout = std.io.getStdOut().writer();
 
@@ -30,8 +30,8 @@ pub fn help() void {
     };
 }
 
-pub fn show(settings: Settings) void {
-    stdout.print("{s}\n", .{settings.buffer}) catch |err| {
+pub fn show(config: Config) void {
+    stdout.print("{s}\n", .{config.buffer}) catch |err| {
         std.log.err("Failed to print show: {}", .{err});
         std.process.exit(1);
     };

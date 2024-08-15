@@ -1,26 +1,25 @@
 const std = @import("std");
 const fs = std.fs;
-const io = std.io;
 const heap = std.heap;
+const io = std.io;
+const mem = std.mem;
 const process = std.process;
 // const c = @cImport({
 //     @cInclude("stdlib.h");
 // });
+const array = @import("array.zig");
 const ConfigFile = @import("config_file.zig").ConfigFile;
 const dirExists = @import("fs.zig").dirExists;
 const isEqual = @import("is_equal.zig").isEqual;
 const joinPath = @import("path.zig").joinPath;
 const print = @import("print.zig");
 
-pub fn main() void {
+pub fn main() !void {
     // _ = c.system("git status");
     var arena = heap.ArenaAllocator.init(heap.page_allocator);
     defer arena.deinit();
 
-    const argv = process.argsAlloc(arena.allocator()) catch |err| {
-        std.log.err("Failed to allocate memory for process arguments: {}", .{err});
-        process.exit(1);
-    };
+    const argv = try process.argsAlloc(arena.allocator());
     // defer process.argsFree(arena.allocator(), argv); // No need to call argsFree because using arena allocator
 
     const args = argv[1..];
@@ -37,7 +36,7 @@ pub fn main() void {
     }
 
     const config_file = ConfigFile.init(arena.allocator());
-    const config = config_file.read();
+    var config = config_file.read();
 
     if (isEqual(cmd, "show")) {
         print.show(config);
@@ -57,10 +56,13 @@ pub fn main() void {
         const new_dirpath = joinPath(arena.allocator(), config.repodir, new_dir);
         dirExists(new_dirpath);
 
+        // TODO: append multiple
+
+        try config.repolist.append(new_dir);
+
         config_file.write(.{
             .repodir = config.repodir,
             .repolist = config.repolist,
-            // .repolist = config.repolist ++ .{cmd},
         });
         return;
     }
