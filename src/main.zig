@@ -1,14 +1,13 @@
 const std = @import("std");
 const fs = std.fs;
 const io = std.io;
-const mem = std.mem;
 const heap = std.heap;
 const process = std.process;
-const eql = mem.eql;
 // const c = @cImport({
 //     @cInclude("stdlib.h");
 // });
 const ConfigFile = @import("config_file.zig").ConfigFile;
+const isEqual = @import("is_equal.zig").isEqual;
 const print = @import("print.zig");
 
 pub fn main() !void {
@@ -27,14 +26,14 @@ pub fn main() !void {
 
     const cmd = args[0];
 
-    if (eql(u8, cmd, "-h") or eql(u8, cmd, "--help") or eql(u8, cmd, "help")) {
+    if (isEqual(cmd, "-h") or isEqual(cmd, "--help") or isEqual(cmd, "help")) {
         print.help();
         return;
     }
 
     const settings = ConfigFile.init(arena.allocator());
 
-    if (eql(u8, cmd, "show")) {
+    if (isEqual(cmd, "show")) {
         print.show(settings);
         return;
     }
