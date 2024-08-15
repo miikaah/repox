@@ -1,8 +1,10 @@
 const std = @import("std");
 const fs = std.fs;
+const json = std.json;
 const mem = std.mem;
 const process = std.process;
 const Allocator = mem.Allocator;
+const joinPath = @import("path.zig").joinPath;
 
 const DEFAULT_CONFIG_DIRNAME = ".repox";
 const DEFAULT_CONFIG_FILENAME = "repoxSettings.json";
@@ -12,12 +14,12 @@ pub const ConfigFile = struct {
     default_config_dir: []const u8,
     default_config_file: []const u8,
 
-    pub const ApiSettings = struct {
+    pub const ApiConfig = struct {
         repodir: []u8,
         repolist: [][]u8,
     };
 
-    pub const Settings = struct {
+    pub const Config = struct {
         repodir: []u8,
         repolist: [][]u8,
         buffer: []u8,
@@ -29,8 +31,8 @@ pub const ConfigFile = struct {
         env_map.* = try process.getEnvMap(allocator);
 
         const homedir = env_map.get("HOME") orelse env_map.get("USERPROFILE") orelse "";
-        const default_config_dir = try fs.path.join(allocator, &[_][]const u8{ homedir, DEFAULT_CONFIG_DIRNAME });
-        const default_config_file = try fs.path.join(allocator, &[_][]const u8{ default_config_dir, DEFAULT_CONFIG_FILENAME });
+        const default_config_dir = joinPath(allocator, homedir, DEFAULT_CONFIG_DIRNAME);
+        const default_config_file = joinPath(allocator, default_config_dir, DEFAULT_CONFIG_FILENAME);
 
         return .{
             .default_config_dir = default_config_dir,
@@ -39,16 +41,14 @@ pub const ConfigFile = struct {
         };
     }
 
-    pub fn init(allocator: Allocator) Settings {
-        const config_file = @This().construct(allocator) catch |err| {
+    pub fn init(allocator: Allocator) ConfigFile {
+        return @This().construct(allocator) catch |err| {
             std.log.err("Failed to contruct ConfigFile: {}", .{err});
             process.exit(1);
         };
-
-        return config_file.read();
     }
 
-    pub fn read(self: ConfigFile) Settings {
+    pub fn read(self: ConfigFile) Config {
         const error_code = 2;
         const file = fs.openFileAbsolute(self.default_config_file, .{}) catch |err| {
             // TODO: Create a new config dir if not exists etc init
@@ -69,7 +69,7 @@ pub const ConfigFile = struct {
             std.log.err("Failed to read file to buffer: {}", .{err});
             process.exit(error_code);
         };
-        const parsed = std.json.parseFromSliceLeaky(ApiSettings, self.allocator, buffer, .{}) catch |err| {
+        const parsed = std.json.parseFromSliceLeaky(ApiConfig, self.allocator, buffer, .{}) catch |err| {
             std.log.err("Failed to parse buffer to JSON: {}", .{err});
             process.exit(error_code);
         };
@@ -82,12 +82,22 @@ pub const ConfigFile = struct {
         };
     }
 
-    pub fn write(self: ConfigFile) void {
+    pub fn write(self: ConfigFile, settings: ApiConfig) void {
         const error_code = 3;
-        const file = fs.openFileAbsolute(self.default_config_file, .{}) catch |err| {
-            std.log.err("Failed to open config file for write: {}\n", .{err});
+        const file = fs.openFileAbsolute(self.default_config_file, .{ .mode = .read_write }) catch |err| {
+            std.log.err("Failed to open config file for write: {}", .{err});
             process.exit(error_code);
         };
         defer file.close();
+
+        const json_slice = json.stringifyAlloc(self.allocator, settings, .{ .whitespace = .indent_2 }) catch |err| {
+            std.log.err("Failed to stringify settings: {}", .{err});
+            process.exit(error_code);
+        };
+
+        file.writeAll(json_slice) catch |err| {
+            std.log.err("Failed to write file: {}", .{err});
+            process.exit(error_code);
+        };
     }
 };

@@ -1,6 +1,6 @@
 const std = @import("std");
 const ConfigFile = @import("config_file.zig").ConfigFile;
-const Settings = ConfigFile.Settings;
+const Settings = ConfigFile.Config;
 
 const stdout = std.io.getStdOut().writer();
 
