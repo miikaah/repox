@@ -45,11 +45,16 @@ pub fn main() !void {
             return;
         }
 
-        const new_dirpath = dir_args[0];
-        fs.assertDirExists(new_dirpath);
+        const new_repodirpath = dir_args[0];
+        fs.assertDirExists(new_repodirpath);
+
+        for (config.repolist.items) |repo| {
+            const dirpath = joinPath(arena.allocator(), new_repodirpath, repo);
+            fs.assertDirExists(dirpath);
+        }
 
         config_file.write(.{
-            .repodir = new_dirpath,
+            .repodir = new_repodirpath,
             .repolist = config.repolist,
         });
         return;
