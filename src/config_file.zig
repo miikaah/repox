@@ -2,16 +2,20 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 const array = @import("array.zig");
+const fs = @import("fs.zig");
 const joinPath = @import("path.zig").joinPath;
+const print = @import("print.zig");
 const compareAsciiStrings = @import("sort.zig").compareAsciiStrings;
 
 const DEFAULT_CONFIG_DIRNAME = ".repox";
 const DEFAULT_CONFIG_FILENAME = "repoxSettings.json";
 
+const stdout = std.io.getStdOut().writer();
+
 pub const ConfigFile = struct {
     allocator: Allocator,
-    default_config_dir: []const u8,
-    default_config_file: []const u8,
+    default_config_dir: []u8,
+    default_config_file: []u8,
 
     pub const ApiConfig = struct {
         repodir: []u8,
@@ -64,10 +68,39 @@ pub const ConfigFile = struct {
         const file = std.fs.openFileAbsolute(
             self.default_config_file,
             .{},
-        ) catch |err| {
-            // TODO: Create a new config dir if not exists etc init
-            std.log.err("Failed to open config file for read: {}", .{err});
-            std.process.exit(error_code);
+        ) catch |err| switch (err) {
+            error.FileNotFound => blk: {
+                // TODO: Add colors to texts
+                print.generic("Config file doesn't exist {s}\n", "");
+
+                if (!fs.dirExists(self.default_config_dir)) {
+                    std.fs.makeDirAbsolute(self.default_config_dir) catch |e| {
+                        std.log.err("Failed to create config dir: {}", .{e});
+                        std.process.exit(error_code);
+                    };
+                    print.generic("Created {s}\n", self.default_config_dir);
+                }
+
+                const f = std.fs.createFileAbsolute(
+                    self.default_config_file,
+                    .{ .read = true },
+                ) catch |e| {
+                    std.log.err("Failed to create config file: {}", .{e});
+                    std.process.exit(error_code);
+                };
+
+                write(self, .{
+                    .repodir = self.default_config_dir,
+                    .repolist = ArrayList([]u8).init(self.allocator),
+                });
+                print.generic("Wrote config file to {s}\n", self.default_config_file);
+
+                break :blk f;
+            },
+            else => |e| {
+                std.log.err("Failed to open config file for read: {}", .{e});
+                std.process.exit(error_code);
+            },
         };
         defer file.close();
 

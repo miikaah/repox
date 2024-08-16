@@ -43,3 +43,10 @@ pub fn commandNotFound() void {
         std.process.exit(1);
     };
 }
+
+pub fn generic(comptime format: []const u8, args: anytype) void {
+    stdout.print(format, .{args}) catch |err| {
+        std.log.err("Failed to print: {}", .{err});
+        std.process.exit(1);
+    };
+}
