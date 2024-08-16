@@ -100,6 +100,16 @@ pub fn main() !void {
         return;
     }
 
+    if (isEqual(cmd, "empty")) {
+        config.repolist.clearAndFree();
+
+        config_file.write(.{
+            .repodir = config.repodir,
+            .repolist = config.repolist,
+        });
+        return;
+    }
+
     if (cmd.len > 0) {
         print.commandNotFound();
         return;
