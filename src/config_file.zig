@@ -10,8 +10,6 @@ const compareAsciiStrings = @import("sort.zig").compareAsciiStrings;
 const DEFAULT_CONFIG_DIRNAME = ".repox";
 const DEFAULT_CONFIG_FILENAME = "repoxSettings.json";
 
-const stdout = std.io.getStdOut().writer();
-
 pub const ConfigFile = struct {
     allocator: Allocator,
     default_config_dir: []u8,
@@ -70,15 +68,14 @@ pub const ConfigFile = struct {
             .{},
         ) catch |err| switch (err) {
             error.FileNotFound => blk: {
-                // TODO: Add colors to texts
-                print.generic("Config file doesn't exist {s}\n", "");
+                print.warn("Config file doesn't exist {s}\n", "");
 
                 if (!fs.dirExists(self.default_config_dir)) {
                     std.fs.makeDirAbsolute(self.default_config_dir) catch |e| {
                         std.log.err("Failed to create config dir: {}", .{e});
                         std.process.exit(error_code);
                     };
-                    print.generic("Created {s}\n", self.default_config_dir);
+                    print.success("Created {s}\n", self.default_config_dir);
                 }
 
                 const f = std.fs.createFileAbsolute(
@@ -90,10 +87,10 @@ pub const ConfigFile = struct {
                 };
 
                 write(self, .{
-                    .repodir = self.default_config_dir,
+                    .repodir = @constCast("Set a repository directory first e.g. repox dir /Users/<username>/repos"),
                     .repolist = ArrayList([]u8).init(self.allocator),
                 });
-                print.generic("Wrote config file to {s}\n", self.default_config_file);
+                print.success("Wrote config file to {s}\n", self.default_config_file);
 
                 break :blk f;
             },

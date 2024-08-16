@@ -2,6 +2,11 @@ const std = @import("std");
 const ConfigFile = @import("config_file.zig").ConfigFile;
 const Config = ConfigFile.Config;
 
+export const RED = "\x1b[31m";
+export const GREEN = "\x1b[32m";
+export const YELLOW = "\x1b[33m";
+export const END = "\x1b[0m";
+
 const stdout = std.io.getStdOut().writer();
 
 const help_text =
@@ -44,9 +49,43 @@ pub fn commandNotFound() void {
     };
 }
 
-pub fn generic(comptime format: []const u8, args: anytype) void {
+pub fn info(comptime format: []const u8, args: anytype) void {
     stdout.print(format, .{args}) catch |err| {
         std.log.err("Failed to print: {}", .{err});
+        std.process.exit(1);
+    };
+}
+
+pub fn warn(comptime format: []const u8, args: anytype) void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    const text = std.fmt.allocPrint(allocator, format, .{args}) catch |err| {
+        std.log.err("Failed to format warn: {}", .{err});
+        std.process.exit(1);
+    };
+    defer allocator.free(text);
+
+    stdout.print("{s}{s}{s}", .{ YELLOW, text, END }) catch |err| {
+        std.log.err("Failed to print warn: {}", .{err});
+        std.process.exit(1);
+    };
+}
+
+pub fn success(comptime format: []const u8, args: anytype) void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    const text = std.fmt.allocPrint(allocator, format, .{args}) catch |err| {
+        std.log.err("Failed to format success: {}", .{err});
+        std.process.exit(1);
+    };
+    defer allocator.free(text);
+
+    stdout.print("{s}{s}{s}", .{ GREEN, text, END }) catch |err| {
+        std.log.err("Failed to print success: {}", .{err});
         std.process.exit(1);
     };
 }
