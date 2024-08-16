@@ -144,7 +144,6 @@ pub const ConfigFile = struct {
             std.process.exit(error_code);
         };
 
-        // TODO: validate that JSON file write succeeded
         file.writeAll(json_slice) catch |err| {
             std.log.err("Failed to write file: {}", .{err});
             std.process.exit(error_code);

@@ -1,6 +1,10 @@
 const std = @import("std");
 
 pub fn assertDirExists(dirpath: []const u8) void {
+    if (!std.fs.path.isAbsolute(dirpath)) {
+        std.log.err("Directory path is not absolute: {s}", .{dirpath});
+        std.process.exit(1);
+    }
     var dir = std.fs.openDirAbsolute(dirpath, .{}) catch {
         std.log.err("Directory not found: {s}", .{dirpath});
         std.process.exit(1);

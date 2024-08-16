@@ -38,6 +38,23 @@ pub fn main() !void {
         return;
     }
 
+    if (isEqual(cmd, "dir")) {
+        const dir_args = args[1..];
+        if (dir_args.len < 1) {
+            std.log.err("Missing argument for adding a new directory", .{});
+            return;
+        }
+
+        const new_dirpath = dir_args[0];
+        fs.assertDirExists(new_dirpath);
+
+        config_file.write(.{
+            .repodir = new_dirpath,
+            .repolist = config.repolist,
+        });
+        return;
+    }
+
     if (isEqual(cmd, "add")) {
         const add_args = args[1..];
         if (add_args.len < 1) {
