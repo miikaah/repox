@@ -1,4 +1,6 @@
 const std = @import("std");
+const Config = @import("config_file.zig").ConfigFile.Config;
+const joinPath = @import("path.zig").joinPath;
 
 pub fn assertDirExists(dirpath: []const u8) void {
     if (!std.fs.path.isAbsolute(dirpath)) {
@@ -19,4 +21,10 @@ pub fn dirExists(dirpath: []const u8) bool {
     };
 
     return exists;
+}
+
+pub fn assertAllReposExist(allocator: std.mem.Allocator, config: Config) void {
+    for (config.repolist.items) |repo| {
+        assertDirExists(joinPath(allocator, config.repodir, repo));
+    }
 }
