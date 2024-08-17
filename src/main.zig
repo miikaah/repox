@@ -10,8 +10,9 @@ const print = @import("print.zig");
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
+    const allocator = arena.allocator();
 
-    const argv = try std.process.argsAlloc(arena.allocator());
+    const argv = try std.process.argsAlloc(allocator);
     const args = argv[1..];
     if (args.len < 1) {
         print.help();
@@ -25,7 +26,7 @@ pub fn main() !void {
         return;
     }
 
-    const config_file = ConfigFile.init(arena.allocator());
+    const config_file = ConfigFile.init(allocator);
     var config = config_file.read();
 
     if (isEqual(cmd, "show")) {
@@ -42,7 +43,7 @@ pub fn main() !void {
 
         const new_repodirpath = dir_args[0];
         fs.assertDirExists(new_repodirpath);
-        fs.assertAllReposExist(arena.allocator(), config);
+        fs.assertAllReposExist(allocator, config);
 
         config_file.write(.{
             .repodir = new_repodirpath,
@@ -59,10 +60,10 @@ pub fn main() !void {
         }
 
         fs.assertDirExists(config.repodir);
-        fs.assertAllReposExist(arena.allocator(), config);
+        fs.assertAllReposExist(allocator, config);
 
         for (add_args) |new_dir| {
-            fs.assertDirExists(joinPath(arena.allocator(), config.repodir, new_dir));
+            fs.assertDirExists(joinPath(allocator, config.repodir, new_dir));
 
             if (!array.stringArrayListContains(&config.repolist, new_dir)) {
                 try config.repolist.append(new_dir);
@@ -107,17 +108,17 @@ pub fn main() !void {
     }
 
     if (isEqual(cmd, "fetch")) {
-        command.runInAllRepos(arena.allocator(), config, command.gitFetch);
+        command.runInAllRepos(allocator, config, command.gitFetch);
         return;
     }
 
     if (isEqual(cmd, "fs")) {
-        command.runInAllRepos(arena.allocator(), config, command.gitFetchStatus);
+        command.runInAllRepos(allocator, config, command.gitFetchStatus);
         return;
     }
 
     if (isEqual(cmd, "status")) {
-        command.runInAllRepos(arena.allocator(), config, command.gitStatus);
+        command.runInAllRepos(allocator, config, command.gitStatus);
         return;
     }
 
