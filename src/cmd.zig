@@ -10,34 +10,48 @@ const fs = @import("fs.zig");
 const joinPath = @import("path.zig").joinPath;
 const print = @import("print.zig");
 
-pub fn gitFetch() void {
+const CallbackOptions = struct {
+    is_on_default_branch: bool,
+};
+
+pub fn gitFetch(options: CallbackOptions) void {
+    if (!options.is_on_default_branch) return;
     _ = c.system("git fetch");
     print.ok();
 }
 
-pub fn gitFetchStatus() void {
+pub fn gitFetchStatus(options: CallbackOptions) void {
+    if (!options.is_on_default_branch) return;
     _ = c.system("git fetch && git status");
     print.ok();
 }
 
-pub fn gitStatus() void {
+pub fn gitStatus(options: CallbackOptions) void {
     _ = c.system("git status");
-    print.ok();
+    if (options.is_on_default_branch) {
+        print.ok();
+    } else {
+        print.yellow("NOTE\n");
+    }
 }
 
-pub fn gitPullRebase() void {
+pub fn gitPullRebase(options: CallbackOptions) void {
+    if (!options.is_on_default_branch) return;
     _ = c.system("git pull --rebase");
 }
 
-pub fn gitPullRebaseNpmInstall() void {
+pub fn gitPullRebaseNpmInstall(options: CallbackOptions) void {
+    if (!options.is_on_default_branch) return;
     _ = c.system("git pull --rebase && npm i");
 }
 
-pub fn npmInstall() void {
+pub fn npmInstall(options: CallbackOptions) void {
+    if (!options.is_on_default_branch) return;
     _ = c.system("npm i");
 }
 
-pub fn cleanNodeModules() void {
+pub fn cleanNodeModules(options: CallbackOptions) void {
+    if (!options.is_on_default_branch) return;
     // TOOD: Cross-platform
     _ = c.system("rm -rf node_modules");
 }
@@ -107,7 +121,11 @@ pub fn isOnDefaultBranch(allocator: std.mem.Allocator) bool {
     return std.mem.eql(u8, default_branch, current_branch);
 }
 
-pub fn runInAllRepos(allocator: std.mem.Allocator, config: Config, cb: fn () void) void {
+pub fn runInAllRepos(
+    allocator: std.mem.Allocator,
+    config: Config,
+    cb: fn (options: CallbackOptions) void,
+) void {
     fs.assertDirExists(config.repodir);
     fs.assertAllReposExist(allocator, config);
 
@@ -120,9 +138,9 @@ pub fn runInAllRepos(allocator: std.mem.Allocator, config: Config, cb: fn () voi
         }
 
         print.header(repo);
-        if (isOnDefaultBranch(allocator)) {
-            cb();
-        }
+        cb(CallbackOptions{
+            .is_on_default_branch = isOnDefaultBranch(allocator),
+        });
         print.footer();
     }
 }
