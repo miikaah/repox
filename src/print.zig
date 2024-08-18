@@ -2,10 +2,10 @@ const std = @import("std");
 const ConfigFile = @import("config_file.zig").ConfigFile;
 const Config = ConfigFile.Config;
 
-export const RED = "\x1b[31m";
-export const GREEN = "\x1b[32m";
-export const YELLOW = "\x1b[33m";
-export const END = "\x1b[0m";
+const RED = "\x1b[31m";
+const GREEN = "\x1b[32m";
+const YELLOW = "\x1b[33m";
+const END = "\x1b[0m";
 
 const stdout = std.io.getStdOut().writer();
 
