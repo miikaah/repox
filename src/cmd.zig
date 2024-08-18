@@ -7,6 +7,7 @@ const c = @cImport({
 });
 const Config = @import("config_file.zig").ConfigFile.Config;
 const fs = @import("fs.zig");
+const isEqual = @import("is_equal.zig").isEqual;
 const joinPath = @import("path.zig").joinPath;
 const print = @import("print.zig");
 
@@ -118,7 +119,7 @@ pub fn isOnDefaultBranch(allocator: std.mem.Allocator) bool {
         len += 1;
     }
 
-    return std.mem.eql(u8, default_branch, current_branch);
+    return isEqual(default_branch, current_branch);
 }
 
 pub fn runInAllRepos(
