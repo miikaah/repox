@@ -22,10 +22,10 @@ pub fn help() void {
         \\fetch                 Run git fetch in all repositories
         \\fs                    Run git fetch && git status in all repositories
         \\status                Run git status in all repositories
-        \\clean                 Remove node_modules directory in all repos
-        \\install               Run npm i in all repos
-        \\pull                  Run git pull --rebase in all repos
-        \\pi                    Run git pull --rebase && npm i in all repos
+        \\clean                 Remove node_modules directory in all repositories
+        \\install  i            Run npm i in all repositories
+        \\pull                  Run git pull --rebase in all repositories
+        \\pi                    Run git pull --rebase && npm i in all repositories
         \\
     ;
     info("\n{s}\n", help_text);

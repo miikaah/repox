@@ -25,6 +25,23 @@ pub fn gitStatus() void {
     print.ok();
 }
 
+pub fn gitPullRebase() void {
+    _ = c.system("git pull --rebase");
+}
+
+pub fn gitPullRebaseNpmInstall() void {
+    _ = c.system("git pull --rebase && npm i");
+}
+
+pub fn npmInstall() void {
+    _ = c.system("npm i");
+}
+
+pub fn cleanNodeModules() void {
+    // TOOD: Cross-platform
+    _ = c.system("rm -rf node_modules");
+}
+
 pub fn readProcessStdout(
     allocator: std.mem.Allocator,
     cmd: []const u8,

@@ -123,6 +123,26 @@ pub fn main() !void {
         return;
     }
 
+    if (isEqual(cmd, "i") or isEqual(cmd, "install") or isEqual(cmd, "isntall")) {
+        command.runInAllRepos(allocator, config, command.npmInstall);
+        return;
+    }
+
+    if (isEqual(cmd, "clean")) {
+        command.runInAllRepos(allocator, config, command.cleanNodeModules);
+        return;
+    }
+
+    if (isEqual(cmd, "pull")) {
+        command.runInAllRepos(allocator, config, command.gitPullRebase);
+        return;
+    }
+
+    if (isEqual(cmd, "pi")) {
+        command.runInAllRepos(allocator, config, command.gitPullRebaseNpmInstall);
+        return;
+    }
+
     if (cmd.len > 0) {
         print.commandNotFound();
         return;
