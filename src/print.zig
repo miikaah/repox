@@ -7,7 +7,16 @@ const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
 const END = "\x1b[0m";
 
-const stdout = std.io.getStdOut().writer();
+const Color = enum {
+    green,
+    yellow,
+};
+
+/// You can't get stdin/out/err during comptime on Windows so this can't be a global
+/// https://github.com/ziglang/zig/issues/17186
+fn getStdOut() std.fs.File.Writer {
+    return std.io.getStdOut().writer();
+}
 
 pub fn help() void {
     const help_text =
@@ -40,28 +49,32 @@ pub fn commandNotFound() void {
 }
 
 pub fn info(comptime format: []const u8, args: anytype) void {
-    stdout.print(format, .{args}) catch |err| {
+    getStdOut().print(format, .{args}) catch |err| {
         std.log.err("Failed to info: {}", .{err});
         std.process.exit(1);
     };
 }
 
 pub fn infoo(comptime format: []const u8) void {
-    stdout.print(format, .{}) catch |err| {
+    getStdOut().print(format, .{}) catch |err| {
         std.log.err("Failed to infoo: {}", .{err});
         std.process.exit(1);
     };
 }
 
 pub fn warn(comptime format: []const u8, args: anytype) void {
-    yellow(formatText(format, args));
+    formatPrint(Color.yellow, format, args);
 }
 
 pub fn success(comptime format: []const u8, args: anytype) void {
-    green(formatText(format, args));
+    formatPrint(Color.green, format, args);
 }
 
-fn formatText(comptime format: []const u8, args: anytype) []u8 {
+fn formatPrint(
+    color: Color,
+    comptime format: []const u8,
+    args: anytype,
+) void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
@@ -72,18 +85,21 @@ fn formatText(comptime format: []const u8, args: anytype) []u8 {
     };
     defer allocator.free(text);
 
-    return text;
+    switch (color) {
+        Color.yellow => yellow(text),
+        Color.green => green(text),
+    }
 }
 
 pub fn yellow(text: []const u8) void {
-    stdout.print("{s}{s}{s}", .{ YELLOW, text, END }) catch |err| {
+    getStdOut().print("{s}{s}{s}", .{ YELLOW, text, END }) catch |err| {
         std.log.err("Failed to print warn: {}", .{err});
         std.process.exit(1);
     };
 }
 
 pub fn green(text: []const u8) void {
-    stdout.print("{s}{s}{s}", .{ GREEN, text, END }) catch |err| {
+    getStdOut().print("{s}{s}{s}", .{ GREEN, text, END }) catch |err| {
         std.log.err("Failed to print success: {}", .{err});
         std.process.exit(1);
     };

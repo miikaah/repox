@@ -85,10 +85,7 @@ pub fn main() !void {
         }
 
         for (remove_args) |dir_to_remove| {
-            // TODO: Improve
-            if (array.stringArrayListContains(&config.repolist, dir_to_remove)) {
-                array.removeOneByValue(&config.repolist, dir_to_remove);
-            }
+            array.removeOneByValue(&config.repolist, dir_to_remove);
         }
 
         config_file.write(.{

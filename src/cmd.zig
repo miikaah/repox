@@ -53,7 +53,6 @@ pub fn npmInstall(options: CallbackOptions) void {
 
 pub fn cleanNodeModules(options: CallbackOptions) void {
     if (!options.is_on_default_branch) return;
-    // TOOD: Cross-platform
     _ = c.system("rm -rf node_modules");
 }
 
@@ -108,7 +107,7 @@ pub fn isOnDefaultBranch(allocator: std.mem.Allocator) bool {
 
     // Remove origin from origin/...
     // This only works if the default branch doesn't have / in it
-    var it = std.mem.split(u8, origin_branch, "/");
+    var it = std.mem.splitSequence(u8, origin_branch, "/");
     var len: i32 = 0;
     var default_branch: []const u8 = "";
     while (it.next()) |x| {
