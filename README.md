@@ -79,7 +79,7 @@ repox help
 
 ## Building
 
-Install Zig (0.13.0) from https://ziglang.org/download/. The OS `libc` library needs to be available. Follow the OS's instructions on how to install it.
+Install Zig (0.13.0) from https://ziglang.org/download/. The OS `libc` library needs to be available. Follow the OS's instructions on how to install it. On POSIX clang and on Windows the "Windows SDK Standalone" are also needed for the build.
 
 To build run
 
