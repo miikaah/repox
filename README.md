@@ -22,7 +22,7 @@ git remote set-head origin --auto
 
 ## Set alias
 
-Setting an alias lets you run repox like a any other program from the command line without setting it in PATH.
+Setting an alias lets you run repox like any other program from the command line without setting it in PATH.
 
 ### POSIX
 
@@ -33,7 +33,7 @@ code ~/.bash_profile
 .bash_profile file
 
 ```sh
-alias repox='node <Your repository folder>/repox/src/index.mjs'
+alias repox='<Absolute path to repox folder>/bin/repox-<os and arch>'
 ```
 
 Reload the .bash_profile file
@@ -50,9 +50,9 @@ repox help
 
 ### Windows
 
-Open the profile file via Powershell. The file will be created to C:\Users\<username>\Documents\Powershell if it doesn't exist.
+Open the profile file via Powershell. The file will be created to C:\Users\username\Documents\Powershell if it doesn't exist.
 
-```ps1
+```sh
 code $PROFILE
 ```
 
@@ -67,13 +67,13 @@ Set-Alias repox repoxZig
 
 Reload the Microsoft.PowerShell_profile.ps1 file
 
-```ps1
+```sh
 . $PROFILE
 ```
 
 Test it
 
-```ps1
+```sh
 repox help
 ```
 
