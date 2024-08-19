@@ -88,3 +88,7 @@ zig build
 ```
 
 The compiled binary can be found in `/zig-out/bin`
+
+## Node
+
+Checkout `git checkout js` for the Node version
