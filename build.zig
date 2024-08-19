@@ -10,10 +10,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-
-    if (target.result.os.tag == .windows) {
-        exe.linkLibC();
-    }
+    exe.linkLibC();
 
     b.installArtifact(exe);
 
