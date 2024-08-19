@@ -79,10 +79,12 @@ repox help
 
 ## Building
 
-Install Zig (0.13.0) from https://ziglang.org/download/ and run
+Install Zig (0.13.0) from https://ziglang.org/download/. The OS `libc` library needs to be available. Follow the OS's instructions on how to install it.
+
+To build run
 
 ```sh
 zig build
 ```
 
-the binary can be found in `/zig-out/bin`
+The compiled binary can be found in `/zig-out/bin`
