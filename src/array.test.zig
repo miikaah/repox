@@ -1,25 +1,18 @@
 const std = @import("std");
 const array = @import("array.zig");
-const expectEqualSlices = std.testing.expectEqualSlices;
+const expectEqualStringArrays = @import("testing.zig").expectEqualStringArrays;
 
-test "return a slice copied from array list items" {
+test "copyStringArrayListItemsToOwnedSlice - returns a slice copied from array list items" {
     const allocator = std.testing.allocator;
-    var expected_slice = try allocator.alloc([]const u8, 2);
-    defer allocator.free(expected_slice);
-
-    expected_slice[0] = "foo";
-    expected_slice[1] = "bar";
+    const expected_slice = &[_][]u8{ @constCast("foo"), @constCast("bar") };
 
     var repolist = std.ArrayList([]u8).init(allocator);
     defer repolist.deinit();
 
-    try repolist.append(@constCast("foo"));
-    try repolist.append(@constCast("bar"));
+    try repolist.appendSlice(expected_slice);
 
     const slice = array.copyStringArrayListItemsToOwnedSlice(allocator, repolist);
     defer allocator.free(slice);
 
-    for (slice, 0..) |item, index| {
-        try expectEqualSlices(u8, expected_slice[index], item);
-    }
+    try expectEqualStringArrays(expected_slice, slice);
 }
