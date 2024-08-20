@@ -35,3 +35,15 @@ test "stringArrayListContains - returns false when array list not constains stri
 
     try expect(!array.stringArrayListContains(&array_list, @constCast("zoo")));
 }
+
+test "removeOneByValue - removes matching value from array list" {
+    var array_list = std.ArrayList([]u8).init(std.testing.allocator);
+    defer array_list.deinit();
+
+    try array_list.appendSlice(&[_][]u8{ @constCast("foo"), @constCast("bar") });
+    try expect(array.stringArrayListContains(&array_list, @constCast("foo")));
+
+    array.removeOneByValue(&array_list, @constCast("foo"));
+    try expect(!array.stringArrayListContains(&array_list, @constCast("foo")));
+    try expect(array.stringArrayListContains(&array_list, @constCast("bar")));
+}
