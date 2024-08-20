@@ -6,6 +6,6 @@ test "returns true when the strings are equal" {
     try expect(isEqual("foo", "foo"));
 }
 
-test "returns false when the strings are equal" {
+test "returns false when the strings are not equal" {
     try expect(!isEqual("foo", "bar"));
 }
