@@ -1,22 +1,11 @@
 const std = @import("std");
 const fs = @import("fs.zig");
 const joinPath = @import("path.zig").joinPath;
+const ensureTestDirsExist = @import("testing.zig").ensureTestDirsExist;
 const expect = std.testing.expect;
 
 fn beforeAll() !void {
-    const allocator = std.testing.allocator;
-    const cwd = try std.fs.cwd().realpathAlloc(allocator, ".");
-    defer allocator.free(cwd);
-
-    const tmp = joinPath(allocator, cwd, "tmp");
-    defer allocator.free(tmp);
-
-    if (!fs.dirExists(tmp)) {
-        std.fs.makeDirAbsolute(tmp) catch |e| {
-            std.log.err("Failed to create config dir: {}", .{e});
-            std.process.exit(1);
-        };
-    }
+    try ensureTestDirsExist();
 }
 
 test {
@@ -29,4 +18,30 @@ test "dirExists - returns true if dir exists" {
 
 test "dirExists - returns false if dir not exists" {
     try expect(!fs.dirExists("/not-exists"));
+}
+
+test "assertAllReposExist - returns void when all repos exist" {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    const allocator = arena.allocator();
+    const cwd = try std.fs.cwd().realpathAlloc(allocator, ".");
+    defer arena.deinit();
+
+    const tmp = joinPath(allocator, cwd, "tmp");
+
+    var repolist = std.ArrayList([]u8).init(allocator);
+    try repolist.append(@constCast("foo"));
+    try repolist.append(@constCast("bar"));
+    try repolist.append(@constCast("baz"));
+
+    const buffer = try allocator.alloc(u8, 0);
+
+    const config = .{
+        .repodir = tmp,
+        .repolist = repolist,
+        .buffer = buffer,
+    };
+
+    fs.assertAllReposExist(allocator, config);
+
+    try expect(true);
 }
