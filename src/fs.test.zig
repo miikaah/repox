@@ -12,6 +12,19 @@ test {
     try beforeAll();
 }
 
+test "assertDirExists - returns void if dir exists" {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    const allocator = arena.allocator();
+    const cwd = try std.fs.cwd().realpathAlloc(allocator, ".");
+    defer arena.deinit();
+
+    const tmp = joinPath(allocator, cwd, "tmp");
+
+    fs.assertDirExists(tmp);
+
+    try expect(true);
+}
+
 test "dirExists - returns true if dir exists" {
     try expect(fs.dirExists("/tmp"));
 }
