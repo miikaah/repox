@@ -32,8 +32,7 @@ pub const ConfigFile = struct {
     };
 
     fn construct(allocator: Allocator) !ConfigFile {
-        const env_map = try allocator.create(std.process.EnvMap);
-        env_map.* = try std.process.getEnvMap(allocator);
+        const env_map = try std.process.getEnvMap(allocator);
 
         const homedir = env_map.get("HOME") orelse env_map.get("USERPROFILE") orelse "";
         const default_config_dir = joinPath(
