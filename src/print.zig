@@ -21,20 +21,20 @@ fn getStdOut() std.fs.File.Writer {
 pub fn help() void {
     const help_text =
         \\Repox commands:
-        \\help  -h, --help      Print this help
-        \\dir                   Set repository directory
-        \\show                  Print current config
-        \\add                   Add repositories
-        \\remove                Remove repositories
-        \\empty                 Remove all repositories
+        \\  help  -h, --help      Print this help
+        \\  dir                   Set repository directory
+        \\  show                  Print current config
+        \\  add                   Add repositories
+        \\  remove                Remove repositories
+        \\  empty                 Remove all repositories
         \\
-        \\fetch                 Run git fetch in all repositories
-        \\fs                    Run git fetch && git status in all repositories
-        \\status                Run git status in all repositories
-        \\clean                 Remove node_modules directory in all repositories
-        \\install  i            Run npm i in all repositories
-        \\pull                  Run git pull --rebase in all repositories
-        \\pi                    Run git pull --rebase && npm i in all repositories
+        \\  fetch                 Run git fetch in all repositories
+        \\  fs                    Run git fetch && git status in all repositories
+        \\  status                Run git status in all repositories
+        \\  clean                 Remove node_modules directory in all repositories
+        \\  install  i            Run npm i in all repositories
+        \\  pull                  Run git pull --rebase in all repositories
+        \\  pi                    Run git pull --rebase && npm i in all repositories
         \\
     ;
     info("\n{s}\n", help_text);
